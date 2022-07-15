@@ -80,9 +80,9 @@ def create_dictionary(components, dictionary_keys, array_rc) -> dict:
                         commands_for_specific_keys = []  #as all commands for ue are placed in ue_common_config
                         commands_for_specific_keys.append("ue_common_configuration")
 
-                 #for adding common config call for gnbxxx, commented as common config call for gnb is not needed
-                elif(key.startswith('gnb')):
-                        commands_for_specific_keys.append("gnb_common_configuration")
+                #  #for adding common config call for gnbxxx, commented as common config call for gnb is not needed
+                # elif(key.startswith('gnb')):
+                #         commands_for_specific_keys.append("gnb_common_configuration")
 
                  #for adding common config call for igw and dnxxx
                 elif(key.startswith('igw') or key.startswith('dn')):
