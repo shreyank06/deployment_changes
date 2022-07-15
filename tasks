@@ -1,0 +1,10 @@
+# # # whole file should be single array, every line should be individuall array
+# # # parse the file such that in the end we have a dictionary at the end consisting of keys as components and values(routes and commands)
+# # # jinja2 
+# # # create templater(write code for rendering) to use this parsed object to print a file contains conditions(if for components)
+
+
+# # #in the template, ue common function, 
+# # #fix ue, dn, igw, fix gnb as per run_service
+
+### update the template to run_service and try to create a run service from other file which should match run service for the setup for which you used the other file
