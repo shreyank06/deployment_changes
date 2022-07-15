@@ -1,0 +1,60 @@
+## routes
+# /nf	/dest			/via
+# |     |               |
+
+r dn1 	192.168.12.0/24 192.168.14.210
+r dn1	default		192.168.250.2
+#
+r dn2	192.168.12.0/24	192.168.14.220
+r dn2	default		192.168.250.2
+#
+r prometheus default	192.168.254.2
+#
+r upf_dn1	default	192.168.14.40
+r upf_dn2	default	192.168.14.45
+
+#
+## commands to run in network namespace as root
+# /nf   /cmd
+#
+c dn1	ip link set n6 mtu 1424
+c dn1	iptables -w -t nat -A POSTROUTING -o hnet -j MASQUERADE
+c dn1	sysctl net.ipv4.ip_forward=1
+#
+c dn2	ip link set n6 mtu 1424
+c dn2	iptables -w -t nat -A POSTROUTING -o hnet -j MASQUERADE
+c dn2	sysctl net.ipv4.ip_forward=1
+#
+c gnb1	sysctl -w net.ipv4.ip_forward=0
+c gnb1  iptables -I OUTPUT -p icmp --icmp-type destination-unreachable -j DROP
+#
+c upf_an	sysctl -w net.ipv4.ip_forward=1
+c upf_an	ip link set n6 mtu 1456
+c upf_an    ip tuntap add mode tun user root name n6_tun
+c upf_an    ip link set n6_tun up
+c upf_an    ip r a 192.168.11.0/24 dev n6_tun # dn ims
+c upf_an    ip r a 192.168.12.0/24 dev n6_tun # dn default
+c upf_an    ip r a 192.168.10.0/24 dev n6_tun # dn internet
+c upf_an    ip r a 10.168.0.0/16 dev n6_tun # dn bt5g
+#
+c upf_dn1	sysctl -w net.ipv4.ip_forward=1
+c upf_dn1	ip link set n6 mtu 1456
+c upf_dn1   ip tuntap add mode tun user root name n6_tun
+c upf_dn1   ip link set n6_tun up
+c upf_dn1   ip r a 192.168.11.0/24 dev n6_tun # dn ims
+c upf_dn1   ip r a 192.168.12.0/24 dev n6_tun # dn default
+c upf_dn1   ip r a 192.168.10.0/24 dev n6_tun # dn internet
+c upf_dn1   ip r a 10.168.0.0/16 dev n6_tun # dn bt5g
+#
+c upf_dn2	sysctl -w net.ipv4.ip_forward=1
+c upf_dn2	ip link set n6 mtu 1456
+c upf_dn2   ip tuntap add mode tun user root name n6_tun
+c upf_dn2   ip link set n6_tun up
+c upf_dn2   ip r a 192.168.11.0/24 dev n6_tun # dn ims
+c upf_dn2   ip r a 192.168.12.0/24 dev n6_tun # dn default
+c upf_dn2   ip r a 192.168.10.0/24 dev n6_tun # dn internet
+c upf_dn2   ip r a 10.168.0.0/16 dev n6_tun # dn bt5g
+#
+c ue1 ip link set air mtu 1470
+c ue2 ip link set air mtu 1470
+

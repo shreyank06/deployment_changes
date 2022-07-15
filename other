@@ -1,0 +1,42 @@
+## routes
+# /nf	/dest			/via
+# |     |               |
+r upf1 	default			192.168.14.40
+r igw 	192.168.12.0/24 192.168.14.210 # dn default
+r igw 	10.11.22.0/24 	192.168.14.210 # dn gbr
+r igw 	192.168.11.0/24 192.168.14.210 # dn ims
+r igw 	10.168.0.0/16   192.168.14.210 # dn bt5g
+r igw 	192.168.10.0/24 192.168.14.220 # dn internet
+r igw	default		192.168.250.2
+r prometheus default	192.168.254.2
+#
+## commands to run in network namespace as root
+# /nf   /cmd
+c upf1	sysctl -w net.ipv4.ip_forward=1
+c upf1	ip link set n6 mtu 1456
+c upf1  sysctl -w net.ipv6.conf.upi_eth.disable_ipv6=1
+c upf1 ip tuntap add mode tun user root name n6_tun
+c upf1 ip link set n6_tun up
+c upf1 ip r a 192.168.11.0/24 dev n6_tun # dn ims
+c upf1 ip r a 192.168.12.0/24 dev n6_tun # dn default
+c upf1 ip r a 10.11.22.0/24 dev n6_tun # dn gbr
+c upf1 ip r a 10.168.0.0/16 dev n6_tun # dn bt5g
+#
+c upf2	sysctl -w net.ipv4.ip_forward=1
+c upf2	ip link set n6 mtu 1456
+c upf2 ip tuntap add mode tun user root name n6_tun
+c upf2 ip link set n6_tun up
+c upf2 ip r a 192.168.10.0/24 dev n6_tun # dn internet
+#
+c gnb1	sysctl -w net.ipv4.ip_forward=0
+c gnb1  iptables -I OUTPUT -p icmp --icmp-type destination-unreachable -j DROP
+#
+c ue1	ip link set air mtu 1470
+#
+c igw	ip link set n6 mtu 1456
+c igw	iptables -w -t nat -A POSTROUTING -o hnet -j MASQUERADE
+c igw	sysctl net.ipv4.ip_forward=1
+#
+c btup  ip tuntap add mode tun user root name btuptun
+c btup  ip link set btuptun up
+c btup  ip link set btuptun mtu 1470
